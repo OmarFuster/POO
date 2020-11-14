@@ -1,94 +1,164 @@
-class Administrador
-	attr_reader :nombreAdministrador, :arregloVehiculos, :arregloTemporal
-	def initialize(nombreAdministrador)
-		@nombreAdministrador = nombreAdministrador
-		@arregloVehiculos = []
+class Hospital
+	attr_reader :arregloTrabajadores
+	def initialize()
+		@arregloTrabajadores = []
 	end
 
-	def registrarVehiculo(vehiculo)
-		@arregloVehiculos.push(vehiculo)		
+	def registrarTrabajador(trabajador)
+		arregloTrabajadores.push(trabajador)
 	end
 
-	def retornarClasificacionPorPlaca(numeroPlaca)
-		for i in arregloVehiculos
-			if numeroPlaca == i.placa
-				return i.retornarClasificacion			
+	def obtenerCantidadTrabajadores
+		arregloTrabajadores.size
+	end
+
+	def retornarArreglo
+		return arregloTrabajadores
+	end
+
+	def obtenerDatosPorDocumento(documento)
+		for i in retornarArreglo
+			if documento == i.documento
+				return i
 			end
 		end
 	end
 
-	def calcularCapacidadCargaModerno
+	def calcularTotalSueldos
 		suma = 0
-		for i in arregloVehiculos
-			if i.retornarClasificacion == "MODERNO"
-				  suma += i.capacidadCarga
-			end
+		for i in retornarArreglo
+			suma += i.calcularSueldo
 		end
 		return suma
 	end
 
-	def listarVehiculoRenovar
-		arregloTemporal = []
-		for i in arregloVehiculos
-			if i.retornarClasificacion == "ANTIGUO"
-				arregloTemporal.push(i)
+	def obtenerMedicoMejorPagado
+		mayor = 0
+		medico = nil
+		for i in retornarArreglo
+			if i.codigo == "M" && i.calcularSueldo > mayor
+				mayor = i.calcularSueldo
+				medico = i
 			end
 		end
-		return arregloTemporal
+		return medico
+	end
+
+	def obtenerEnfermeroMenorPago
+		menor = 999999
+		medico = nil
+		for i in retornarArreglo
+			if i.codigo == "E" && i.calcularSueldo < menor
+				menor = i.calcularSueldo
+				medico = i
+			end
+		end
+		return medico
+	end
+
+end
+
+class Trabajador
+attr_reader :codigo ,:documento, :nombreCompleto, :edad, :sueldoBase
+	def initialize(codigo,documento,nombreCompleto,edad,sueldoBase)
+		@codigo = codigo
+		@documento = documento
+		@nombreCompleto = nombreCompleto
+		@edad = edad
+		@sueldoBase = sueldoBase
+	end
+
+	def calcularSueldo
+		
+	end
+
+	def mostrarDatos
+		return "Documento: #{documento},Nombre Completo: #{nombreCompleto},Edad: #{edad},Sueldo: #{calcularSueldo}"
 	end
 end
 
-class Vehiculo
-	attr_reader :placa, :año, :capacidadCarga
-	def initialize(placa, año, capacidadCarga)
-		@placa = placa
-		@año = año
-		@capacidadCarga = capacidadCarga
+class Medico < Trabajador
+attr_reader :especialidad, :horasExtras
+	def initialize(codigo,documento,nombreCompleto,edad,sueldoBase,especialidad,horasExtras)
+		super(codigo,documento,nombreCompleto,edad,sueldoBase)
+		@especialidad = especialidad
+		@horasExtras = horasExtras
 	end
 
-	def retornarClasificacion
-		if año < 2000
-			return "ANTIGUO"
-		elsif año >= 2000 && año < 2015
-			return "NORMAL"
-		elsif año >= 2015
-			return "MODERNO"			
+	def calcularSueldo
+		if especialidad == "Medicina General"
+			return (sueldoBase + 3500) + horasExtras*60
+		elsif especialidad == "Neumologia"
+			return (sueldoBase + 4500) + horasExtras*60
+		elsif especialidad == "Dermatologia"
+			return (sueldoBase + 5500) + horasExtras*60
+		elsif especialidad == "Hematologia"
+			return (sueldoBase + 6500) + horasExtras*60
+		elsif especialidad == "Cardiologia"
+			return (sueldoBase + 6900) + horasExtras*60
+		end
+
+		def mostrarDatos
+			datos = super()
+			datos = datos + "Especialidad: #{@especialidad}, Horas Extras: #{@horasExtras}"
+			return datos
 		end
 	end
 end
 
-adm = Administrador.new("OMAR")
-v1 = Vehiculo.new("ABC-123" , 2001, 1000)
-v2 = Vehiculo.new("ABC-124" , 2010, 1000)
-v3 = Vehiculo.new("ABC-125" , 2011, 1000)
-v4 = Vehiculo.new("ABC-126" , 2008, 1000)
-v5 = Vehiculo.new("ABC-127" , 1999, 1000)
-v6 = Vehiculo.new("ABC-128" , 1980, 1000)
-v7 = Vehiculo.new("ABC-129" , 1990, 1000)
-v8 = Vehiculo.new("ABC-130" , 2030, 1000)
-v9 = Vehiculo.new("ABC-131" , 2020, 1000)
-v10 = Vehiculo.new("ABC-132" , 2025, 1000)
+class Enfermero < Trabajador
+attr_reader :comisiones
+	def initialize(codigo,documento,nombreCompleto,edad,sueldoBase,comisiones)
+		super(codigo,documento,nombreCompleto,edad,sueldoBase)
+		@comisiones = comisiones
+	end
 
-# a) Permitir el registro de 10 vehículos en la empresa. 
-adm.registrarVehiculo(v1)
-adm.registrarVehiculo(v2)
-adm.registrarVehiculo(v3)
-adm.registrarVehiculo(v4)
-adm.registrarVehiculo(v5)
-adm.registrarVehiculo(v6)
-adm.registrarVehiculo(v7)
-adm.registrarVehiculo(v8)
-adm.registrarVehiculo(v9)
-adm.registrarVehiculo(v10)
+	def calcularSueldo
+		return sueldoBase + comisiones
+	end
 
-# b) Obtener la clasificación de un vehículo de la empresa ingresando la placa
-puts "La clasificacion para la placa digitada es: "  + adm.retornarClasificacionPorPlaca("ABC-127")
-puts
-
-# c) Elaborar un método que permita calcular la capacidad de carga total de todos los vehículos modernos dentro de la empresa
-puts "La capacidad de carga total de los vehículos modernos es : #{adm.calcularCapacidadCargaModerno} KG"
-puts
-# d) Elaborar un método que liste y muestre los datos de todos los vehículos dentro de la empresa que se deben renovar por ser antiguos.
-for i in adm.listarVehiculoRenovar
-	puts "El vehículo de placa #{i.placa}, año #{i.año} y con capacidad de carga #{i.capacidadCarga} necesita ser renovado"
+	def mostrarDatos
+		datos = super()
+		return datos + ", Comisiones: #{@comisiones}"
+		return datos
+	end
 end
+hospital = Hospital.new
+m1 = Medico.new("M","11111111","Omar Fuster",25,1500,"Medicina General",3)
+m2 = Medico.new("M","22222222","Luis Fuster",26,1500,"Neumologia",3)
+m3 = Medico.new("M","33333333","Alfredo Ildefonso",27,1500,"Cardiologia",3)
+m4 = Medico.new("M","44444444","Ildefonso Alfredo",28,1500,"Hematologia",3)
+e1 = Enfermero.new("E","5555555","Patricio Flores",30,1900,200)
+e2 = Enfermero.new("E","6666666","Raul Fuentes",31,1900,200)
+e3 = Enfermero.new("E","7777777","Obregon Fausto",32,1900,200)
+e4 = Enfermero.new("E","8888888","Sergio Valderrama",33,1900,200)
+
+# a) Registrar 8 colaboradores (4 médicos, 4 enfermeros)
+hospital.registrarTrabajador(m1)
+hospital.registrarTrabajador(m2)
+hospital.registrarTrabajador(m3)
+hospital.registrarTrabajador(m4)
+hospital.registrarTrabajador(e1)
+hospital.registrarTrabajador(e2)
+hospital.registrarTrabajador(e3)
+hospital.registrarTrabajador(e4)
+
+# b) Obtener la cantidad de colaboradores. 
+puts "Hay #{hospital.obtenerCantidadTrabajadores} Trabajadores en el hospital"
+
+# c) Elaborar un método que permita obtener todos los datos de un colaborador enviando el número de documento como parámetro y mostrarlo en pantalla.
+busquedaPordni = hospital.obtenerDatosPorDocumento("6666666")
+puts busquedaPordni.mostrarDatos
+
+# d) Elaborar un método que permita calcular la suma de los sueldos de todos los colaboradores registrados.
+puts "El Sueldo de todos los trabajadores es S/.#{hospital.calcularTotalSueldos}"
+puts
+
+# e) Elaborar un método que permita obtener al médico mejor pagado en el hospital y mostrar todos sus datos en pantalla.
+mejorMedicoPagado =  hospital.obtenerMedicoMejorPagado
+puts "El médico mejor pagado tiene la siguiente información:\n #{mejorMedicoPagado.mostrarDatos}"
+puts
+
+# f) Elaborar un método que permita obtener al enfermero con el sueldo más bajo en el hospital y mostrar todos sus datos en pantalla.
+menorEnfermeroPagado = hospital.obtenerEnfermeroMenorPago
+puts "El médico con menos paga tiene la siguiente información:\n #{menorEnfermeroPagado.mostrarDatos}"
